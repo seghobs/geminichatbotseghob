@@ -9,7 +9,7 @@ from io import BytesIO
 app = Flask(__name__, static_url_path='/static', static_folder='static')
 
 # Gemini API anahtarınızı yapılandırın
-API_KEY = "AIzaSyATtM0XSw8IeO_QU83rOOiuiYCCRIofzOo"  # API anahtarınızı buraya girin
+API_KEY = "YOUR_API_KEY"  # API anahtarınızı buraya girin
 genai.configure(api_key=API_KEY)
 
 # Yüklenen resimlerin kaydedileceği klasör
