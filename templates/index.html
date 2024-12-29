@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Chatbot V1</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-open-sans dark:bg-gray-900">
+    <div class="container mx-auto p-4">
+        <div class="flex justify-end mb-4">
+            <!-- Dark/Light Mod Butonu -->
+            <button id="theme-toggle" class="bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-bold py-2 px-4 rounded-lg">
+                <svg id="theme-toggle-dark-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                <svg id="theme-toggle-light-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+            </button>
+        </div>
+
+        <!-- Chatbot Container -->
+        <div class="chatbot-container bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
+            <h1 class="text-3xl font-bold text-center text-gray-800 dark:text-gray-200 mb-4">Gemini Chatbot v1</h1>
+            
+            <div id="chatbox" class="mb-4">
+                <!-- Sohbet geçmişi ve mesajlar burada gösterilecek -->
+                {% for message in chat_history %}
+                    <div class="message-container {{ message.type }}">
+                        {% if message.type == 'user' %}
+                            <div class="message-content">
+                                <div class="message-user">
+                                    <!-- Resim ve metin gösterimi -->
+                                    {% if message.message|length > 1 and message.message[0].data %}
+                                      <img src="data:{{ message.message[0].mime_type }};base64,{{ message.message[0].data }}" class="mt-2 max-h-64 rounded">
+                                      {{ message.message[1] }}
+                                    {% else %}
+                                      {{ message.message[0] }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="avatar avatar-user">S</div>
+                        {% else %}
+                            <div class="avatar avatar-bot">
+                                <img class="h-10 w-10 rounded-full" src="{{ url_for('static', filename='images/gemini-profile.png') }}" alt="Gemini Logo">
+                            </div>
+                            <div class="message-content">
+                                <div class="message-bot">{{ message.message }}</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Sohbet Formu -->
+            <form id="chat-form" class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4">
+                <label for="image" class="cursor-pointer bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-2 px-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 pll">
+                    <svg class="inline-block w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                    Resim Yükle
+                    <input type="file" id="image" name="image" accept="image/*" class="hidden">
+                </label>
+                <div class="flex-1 flex shadow-sm">
+                    <input type="text" id="message" name="message" placeholder="Mesajınızı yazın..." class="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 rounded-l-xl p-3 focus:ring-blue-500 focus:border-blue-500">
+                    <button type="submit" class="bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-700 hover:to-green-700 text-white font-bold py-3 px-6 rounded-r-xl shadow-md hover:shadow-lg transition-all duration-200 pll">Gönder</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Sohbeti Temizle Butonu -->
+        <div class="flex justify-center mt-4">
+            <button id="clear-chat" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 pll">Sohbeti Temizle</button>
+        </div>
+    </div>
+
+    <script>
+        let chatHistory = {{ chat_history|tojson }};
+    </script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
